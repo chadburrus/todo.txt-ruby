@@ -42,7 +42,8 @@ class Todo
     self.created=(s.scan(@@CREATEDREG).flatten.first || nil)
 
     @priority = s.scan(@@PRIREG).flatten.first 
-    @schedule = s.scan(@@SCHEDULEREG).flatten.first || nil
+    self.schedule=(s.scan(@@SCHEDULEREG).flatten.first || nil)
+
 
     @contexts = s.scan(@@CONREG).flatten.uniq || []
     @projects = s.scan(@@PROREG).flatten.uniq || []
@@ -99,6 +100,18 @@ class Todo
     rebuildText
   end
 
+  # Sets/Changes the current schedule
+  def schedule=(schedule)
+    return false unless schedule.is_a?(NilClass) || (schedule.is_a?(String) && schedule.match(/[0-9]{4}-[0-9]{2}-[0-9]{2}/)) || schedule.is_a?(Date)
+
+    if schedule.is_a?(String)
+      schedule = Date.parse(schedule)
+    end
+
+    @schedule = schedule
+    rebuildText
+  end
+
   def rebuildText
     @text = ""
     if @done
@@ -130,7 +143,7 @@ class Todo
     end
 
     if !@schedule.nil?
-      @text += " t:" + @schedule
+      @text += " t:" + @schedule.strftime("%Y-%m-%d")
     end
 
   end
