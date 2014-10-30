@@ -87,6 +87,38 @@ class Todo
     @projects=projs
   end
 
+  def rebuildText
+    @text = ""
+    if @done
+      @text = "x"
+    else
+      if !@priority.nil?
+        @text = "(" + @priority + ")"
+      end
+    end
+
+    if !@body.nil?
+      @text += " " + @body
+    end
+
+    if !@contexts.nil?
+      @contexts.sort!.each { |context|
+        @text += " @" + context
+      }
+    end
+
+    if !@projects.nil?
+      @projects.sort!.each { |project|
+        @text += " +" + project
+      }
+    end
+
+    if !@schedule.nil?
+      @text += " t:" + @schedule
+    end
+
+  end
+
   # Returns a String in the following format:
   # (priority) Text with contexts and projects
   def to_s
