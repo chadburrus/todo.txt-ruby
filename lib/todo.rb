@@ -38,11 +38,15 @@ class Todo
   # Constructs a TodoFu from an input string
   def initialize(str)
     s = str.strip.chomp
+
     self.created=(s.scan(@@CREATEDREG).flatten.first || nil)
+
     @priority = s.scan(@@PRIREG).flatten.first 
     @schedule = s.scan(@@SCHEDULEREG).flatten.first || nil
+
     @contexts = s.scan(@@CONREG).flatten.uniq || []
     @projects = s.scan(@@PROREG).flatten.uniq || []
+
     @done = !s.match(@@DONREG).nil?
     @text = s
 
