@@ -11,6 +11,7 @@ class Todo
   attr :projects
   attr :done
   attr :schedule
+  attr :body
 
   # Parses text line by line and returns an array of TodoFus
   def self.parse(str)
@@ -39,6 +40,15 @@ class Todo
     @projects = s.scan(@@PROREG).flatten.uniq || []
     @done = !s.match(@@DONREG).nil?
     @text = s
+
+    @body = s.gsub(@@PRIREG, "")
+             .gsub(@@SCHEDULEREG, "")
+             .gsub(@@CONREG, "")
+             .gsub(@@PROREG, "")
+             .gsub(@@DONREG, "")
+             .strip
+             .chomp
+
   end
 
   # Sets/Changes the current priority
