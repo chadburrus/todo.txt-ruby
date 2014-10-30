@@ -1,3 +1,5 @@
+require "date"
+
 class Todo
   # Regular Expressions used in parsing todos
   @@PRIREG=/^\(([A-Z])\)/
@@ -5,12 +7,14 @@ class Todo
   @@PROREG=/\+(\w+)/
   @@DONREG=/^x /
   @@SCHEDULEREG=/t:([0-9-]{10})?/
+  @@CREATEDREG=/(?<!:)([0-9\-]{10})/
 
   attr :priority
   attr :contexts
   attr :projects
   attr :done
   attr :schedule
+  attr :created
   attr :body
 
   # Parses text line by line and returns an array of TodoFus
@@ -34,6 +38,7 @@ class Todo
   # Constructs a TodoFu from an input string
   def initialize(str)
     s = str.strip.chomp
+    self.created=(s.scan(@@CREATEDREG).flatten.first || nil)
     @priority = s.scan(@@PRIREG).flatten.first 
     @schedule = s.scan(@@SCHEDULEREG).flatten.first || nil
     @contexts = s.scan(@@CONREG).flatten.uniq || []
@@ -42,6 +47,7 @@ class Todo
     @text = s
 
     @body = s.gsub(@@PRIREG, "")
+             .gsub(@@CREATEDREG, "")
              .gsub(@@SCHEDULEREG, "")
              .gsub(@@CONREG, "")
              .gsub(@@PROREG, "")
@@ -76,6 +82,18 @@ class Todo
     rebuildText
   end
 
+  # Sets the current created, but only if it's currently unset
+  def created=(created)
+    return false unless @created.nil?
+    return false unless created.is_a?(NilClass) || (created.is_a?(String) && created.match(/[0-9]{4}-[0-9]{2}-[0-9]{2}/)) || created.is_a?(Date)
+
+    if created.is_a?(String)
+      created = Date.parse(created)
+    end
+
+    @created = created
+    rebuildText
+  end
 
   def rebuildText
     @text = ""
@@ -85,6 +103,10 @@ class Todo
       if !@priority.nil?
         @text = "(" + @priority + ")"
       end
+    end
+
+    if !@created.nil?
+      @text += " " + @created.strftime("%Y-%m-%d")
     end
 
     if !@body.nil?
