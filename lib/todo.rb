@@ -54,13 +54,8 @@ class Todo
   # Sets/Changes the current priority
   def priority=(pri)
     return false unless pri.is_a?(NilClass) || (pri.is_a?(String) && pri.match(/[A-Z]/))
-    if pri == nil || pri == ""
-      @text.gsub!(/^\([A-Z]\)/,"")
-      @text.strip!
-    else
-      @text.gsub!(/^\([A-Z]\)/,"(#{pri})") || @text = "(#{pri}) #{@text}"
-    end
     @priority = pri
+    rebuildText
   end
 
   # Updates the current contexts
@@ -68,11 +63,8 @@ class Todo
   # * Appends new contexts
   def contexts=(cons)
     return false unless cons.is_a? Array
-    removed = @contexts - cons
-    added = cons - @contexts
-    @text << " " << added.map{|t| "@#{t}"}.join(" ")
-    removed.each {|r| @text.gsub!(" @#{r}","")}
-    @contexts=cons
+    @contexts=cons.sort!
+    rebuildText
   end
 
   # Updates the current projects
@@ -80,12 +72,10 @@ class Todo
   # * Appends new projects
   def projects=(projs)
     return false unless projs.is_a? Array
-    removed = @projects - projs
-    added = projs - @projects
-    @text << " " << added.map{|t| "+#{t}"}.join(" ")
-    removed.each {|r| @text.gsub!(" +#{r}","")}
-    @projects=projs
+    @projects=projs.sort!
+    rebuildText
   end
+
 
   def rebuildText
     @text = ""
@@ -122,17 +112,18 @@ class Todo
   # Returns a String in the following format:
   # (priority) Text with contexts and projects
   def to_s
+    rebuildText
     @text
   end
 
   def do
-    @text = "x #{@text}"
     @done = true
+    rebuildText
   end
 
   def undo
-    @text.gsub!(/^(x )/,"")
     @done = false
+    rebuildText
   end
 
   def done?
