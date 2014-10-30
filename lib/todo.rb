@@ -41,9 +41,9 @@ class Todo
 
     self.created=(s.scan(@@CREATEDREG).flatten.first || nil)
 
-    @priority = s.scan(@@PRIREG).flatten.first 
     self.schedule=(s.scan(@@SCHEDULEREG).flatten.first || nil)
 
+    @priority = s.scan(@@PRIREG).flatten.first
 
     @contexts = s.scan(@@CONREG).flatten.uniq || []
     @projects = s.scan(@@PROREG).flatten.uniq || []
