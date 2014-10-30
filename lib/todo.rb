@@ -57,6 +57,7 @@ class Todo
              .gsub(@@CONREG, "")
              .gsub(@@PROREG, "")
              .gsub(@@DONREG, "")
+             .gsub(/\s\s+/, " ")
              .strip
              .chomp
 
