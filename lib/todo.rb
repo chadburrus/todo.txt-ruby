@@ -4,11 +4,13 @@ class Todo
   @@CONREG=/@(\w+)/
   @@PROREG=/\+(\w+)/
   @@DONREG=/^x /
+  @@SCHEDULEREG=/t:([0-9-]{10})?/
 
   attr :priority
   attr :contexts
   attr :projects
   attr :done
+  attr :schedule
 
   # Parses text line by line and returns an array of TodoFus
   def self.parse(str)
@@ -32,6 +34,7 @@ class Todo
   def initialize(str)
     s = str.strip.chomp
     @priority = s.scan(@@PRIREG).flatten.first 
+    @schedule = s.scan(@@SCHEDULEREG).flatten.first || nil
     @contexts = s.scan(@@CONREG).flatten.uniq || []
     @projects = s.scan(@@PROREG).flatten.uniq || []
     @done = !s.match(@@DONREG).nil?
